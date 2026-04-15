@@ -333,6 +333,7 @@ start_command() {
   else
     load_config
   fi
+  stop_api
   write_run_api_script
   update_caddyfile
   start_api
