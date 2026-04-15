@@ -29,9 +29,9 @@ Optional proxy variables are passed through when present (`ALL_PROXY`, `all_prox
 ./self_host.zsh stop
 ```
 
-- `setup`: stops the current backend, persists config, installs pnpm deps if needed, builds frontend/backend, updates `~/Caddyfile`, reloads Caddy, and starts the backend.
-- `redeploy`: rebuilds from the current working tree and restarts the app.
-- `start`: starts from saved artifacts/config and refreshes the managed Caddy block.
+- `setup`: stops the current backend, persists config, installs pnpm deps if needed, builds frontend/backend, updates `~/Caddyfile`, reloads Caddy, starts the backend, and waits for `/healthz`.
+- `redeploy`: rebuilds from the current working tree, restarts the app, and waits for `/healthz`.
+- `start`: starts from saved artifacts/config, refreshes the managed Caddy block, and waits for `/healthz`.
 - `stop`: stops the tmux session.
 
 If `public_url` omits a scheme, the script assumes `https://`.
@@ -52,7 +52,7 @@ For HTTPS origins it creates:
 
 Both entries:
 - serve the built SPA from `dist/`
-- route `/api*`, `/ws*`, and `/healthz` to `127.0.0.1:18082`
+- route `/api`, `/api/*`, `/ws`, `/ws/*`, and `/healthz` to `127.0.0.1:18082`
 - use SPA fallback via `try_files {path} /index.html`
 
 ## Adaptive WebSocket behavior

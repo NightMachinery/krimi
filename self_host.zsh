@@ -246,7 +246,7 @@ from urllib.parse import urlparse
 public_url, api_port, dist_dir = sys.argv[1:4]
 parsed = urlparse(public_url)
 host = parsed.netloc
-common = f"""    encode zstd gzip\n\n    @krimi_backend {{\n        path /api* /ws* /healthz\n    }}\n\n    handle @krimi_backend {{\n        reverse_proxy 127.0.0.1:{api_port}\n    }}\n\n    root * {dist_dir}\n    try_files {{path}} /index.html\n    file_server\n"""
+common = f"""    encode zstd gzip\n\n    @krimi_backend {{\n        path /api /api/* /ws /ws/* /healthz\n    }}\n\n    handle @krimi_backend {{\n        reverse_proxy 127.0.0.1:{api_port}\n    }}\n\n    handle {{\n        root * {dist_dir}\n        try_files {{path}} /index.html\n        file_server\n    }}\n"""
 blocks = []
 if parsed.scheme == 'https':
     blocks.append(f"https://{host} {{\n    tls internal\n{common}}}")
@@ -295,6 +295,28 @@ start_api() {
   tmuxnew "$API_SESSION_NAME" "$RUN_API_SCRIPT"
 }
 
+wait_for_api() {
+  load_config
+  local attempt
+  for attempt in {1..30}; do
+    if python3 - "$API_PORT" <<'PY' >/dev/null 2>&1
+import sys
+import urllib.request
+
+port = sys.argv[1]
+opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+with opener.open(f"http://127.0.0.1:{port}/healthz", timeout=1) as response:
+    if response.status != 200:
+        raise SystemExit(1)
+PY
+    then
+      return 0
+    fi
+    sleep 1
+  done
+  die "Krimi backend did not become healthy on port ${API_PORT}"
+}
+
 stop_api() {
   tmux kill-session -t "$API_SESSION_NAME" &> /dev/null || true
 }
@@ -310,6 +332,7 @@ setup_command() {
   write_run_api_script
   update_caddyfile
   start_api
+  wait_for_api
   note "Krimi is configured for $public_url"
 }
 
@@ -324,6 +347,7 @@ redeploy_command() {
   write_run_api_script
   update_caddyfile
   start_api
+  wait_for_api
   note "Krimi redeployed for $public_url"
 }
 
@@ -337,6 +361,7 @@ start_command() {
   write_run_api_script
   update_caddyfile
   start_api
+  wait_for_api
   note "Krimi started for ${PUBLIC_URL}"
 }
 

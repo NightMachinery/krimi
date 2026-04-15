@@ -1,10 +1,10 @@
 <template>
   <v-app>
-    <v-content>
+    <v-main>
       <transition name="page">
         <router-view />
       </transition>
-    </v-content>
+    </v-main>
   </v-app>
 </template>
 

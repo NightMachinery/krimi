@@ -11,15 +11,20 @@ async function request(path, options = {}) {
     headers: buildHeaders(options.headers)
   });
 
-  const isJson =
-    response.headers.get("content-type")?.includes("application/json") ?? false;
-  const payload = isJson ? await response.json() : null;
+  const contentType = response.headers.get("content-type") || "";
+  const rawBody = await response.text();
+  const isJson = contentType.includes("application/json");
+  const payload = isJson && rawBody ? JSON.parse(rawBody) : null;
 
   if (!response.ok) {
     const message = payload?.error || response.statusText || "Request failed";
     const error = new Error(message);
     error.status = response.status;
     throw error;
+  }
+
+  if (!isJson) {
+    throw new Error(`Expected JSON response from ${path}`);
   }
 
   return payload;
