@@ -29,24 +29,21 @@
         >
       </v-col>
       <v-col cols="12" md="3" xl="2">
-        <v-card>
+        <v-btn @click="copyText(location)" block class="mb-4 accent--text" text>
+          {{ t("Copy game url") }}
+        </v-btn>
+        <v-card class="qr-card">
           <v-card-text>
-            <qrcode
-              :options="{
-                size: 1000,
-                background: '#fff',
-                foreground: '#091619'
-              }"
-              :value="location"
-            ></qrcode>
-            <v-btn
-              @click="copyText(location)"
-              block
-              class="mt-4 accent--text"
-              text
-            >
-              {{ t("Copy game url") }}
-            </v-btn>
+            <div class="qr-code">
+              <qrcode
+                :options="{
+                  size: 1000,
+                  background: '#fff',
+                  foreground: '#091619'
+                }"
+                :value="location"
+              ></qrcode>
+            </div>
           </v-card-text>
         </v-card>
       </v-col>
@@ -148,7 +145,18 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-canvas {
-  max-width: 100%;
+.qr-card .v-card__text {
+  padding: 16px;
+}
+
+.qr-code {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+}
+
+.qr-code ::v-deep canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
 }
 </style>
