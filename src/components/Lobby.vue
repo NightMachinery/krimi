@@ -10,6 +10,7 @@
         </h2>
         <p class="subtitle-1 my-4">
           {{ t("Waiting for players") }}. {{ playerCount }}
+          {{ playersNeededMessage }}
         </p>
         <v-progress-linear
           indeterminate
@@ -18,6 +19,19 @@
           rounded
           color="accent"
         ></v-progress-linear>
+        <v-alert
+          dense
+          outlined
+          color="secondary"
+          class="mb-4 detective-help"
+          v-if="players.length"
+        >
+          {{
+            t(
+              "Blue badge means the selected detective. Tap a gray badge to choose a different detective."
+            )
+          }}
+        </v-alert>
         <lobby-players v-if="players.length" :game="game" :players="players" />
         <v-btn
           class="mt-4"
@@ -61,6 +75,8 @@
 import LobbyPlayers from "./LobbyPlayers";
 import { playersByIndex } from "@/utils/game";
 
+const MIN_PLAYERS_TO_START = 5;
+
 async function copyTextToClipboard(text) {
   if (window.isSecureContext && navigator.clipboard?.writeText) {
     await navigator.clipboard.writeText(text);
@@ -95,6 +111,13 @@ export default {
       "No players joined yet.": "Nenhum jogador entrou ainda.",
       "player joined.": "jogador entrou.",
       "players joined.": "jogadores entraram.",
+      "Ready to start.": "Pronto para começar.",
+      "more player needed to start.":
+        "jogador a mais é necessário para começar.",
+      "more players needed to start.":
+        "jogadores a mais são necessários para começar.",
+      "Blue badge means the selected detective. Tap a gray badge to choose a different detective.":
+        "O distintivo azul mostra o detetive selecionado. Toque em um distintivo cinza para escolher outro detetive.",
       "URL Copied": "URL Copiada",
       Close: "Fechar",
       "Copy game url": "Copiar url do jogo ",
@@ -116,12 +139,28 @@ export default {
     players() {
       return playersByIndex(this.game);
     },
+    playersNeeded() {
+      return Math.max(MIN_PLAYERS_TO_START - this.players.length, 0);
+    },
     playerCount() {
       if (!this.players.length) return this.t("No players joined yet.");
       if (this.players.length === 1) {
         return `${this.players.length} ${this.t("player joined.")}`;
       }
       return `${this.players.length} ${this.t("players joined.")}`;
+    },
+    playersNeededMessage() {
+      if (this.playersNeeded === 0) {
+        return this.t("Ready to start.");
+      }
+      if (this.playersNeeded === 1) {
+        return ` ${this.playersNeeded} ${this.t(
+          "more player needed to start."
+        )}`;
+      }
+      return ` ${this.playersNeeded} ${this.t(
+        "more players needed to start."
+      )}`;
     }
   },
   methods: {
