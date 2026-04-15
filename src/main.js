@@ -5,7 +5,10 @@ import store from "./store";
 import vuetify from "./plugins/vuetify";
 import VueQrcode from "@xkeshi/vue-qrcode";
 import VueTranslate from "vue-translate-plugin";
-import "./registerServiceWorker";
+import "@mdi/font/css/materialdesignicons.min.css";
+import "@fontsource/ibm-plex-mono/400.css";
+import "@fontsource/ibm-plex-mono/700.css";
+import "@fontsource/shadows-into-light";
 
 Vue.config.productionTip = false;
 Vue.component(VueQrcode.name, VueQrcode);

@@ -96,7 +96,7 @@ export default {
       if (this.$translate.lang !== "pt_br") {
         this.$translate.setLang("pt_br");
       } else this.$translate.setLang("en");
-    },
+    }
   },
   locales: {
     pt_br: {
@@ -110,9 +110,9 @@ export default {
       "Join game": "Entrar em um jogo",
       "Create new game": "Criar novo jogo",
       "Versão em português": "English version",
-      "A web-version of Tobey Ho's": "Uma versão web do jogo de Tobey Ho",
-    },
-  },
+      "A web-version of Tobey Ho's": "Uma versão web do jogo de Tobey Ho"
+    }
+  }
 };
 </script>
 

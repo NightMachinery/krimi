@@ -92,7 +92,7 @@ export default {
   methods: {
     async sendChoice() {
       await this.$store.dispatch("setMurdererChoice", {
-        game: this.game.gamekey,
+        gameId: this.game.gameId,
         choice: this.murdererChoice
       });
       this.$emit("choice");

@@ -1,5 +1,19 @@
+const backendTarget = process.env.KRIMI_DEV_BACKEND || "http://127.0.0.1:18082";
+
 module.exports = {
-  transpileDependencies: ["vuetify"],
+  devServer: {
+    proxy: {
+      "^/api": {
+        target: backendTarget,
+        changeOrigin: true
+      },
+      "^/ws": {
+        target: backendTarget,
+        changeOrigin: true,
+        ws: true
+      }
+    }
+  },
   pwa: {
     name: "Krimi",
     themeColor: "#FFFFFE",

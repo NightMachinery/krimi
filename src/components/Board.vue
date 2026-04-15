@@ -28,17 +28,17 @@
               :style="{
                 transform: `translate(-50%, -50%) rotate(${parseInt(
                   3 - Math.random() * 6
-                )}deg)`,
+                )}deg)`
               }"
             >
               <span class="red--text" v-if="game.murderer === player.index"
                 >Murderer</span
               >
-              <span v-if="game.murderer !== player.index">Detective</span>
+              <span v-else>Detective</span>
             </div>
             <v-card
               :style="{
-                transform: `rotate(${parseInt(3 - Math.random() * 6)}deg)`,
+                transform: `rotate(${parseInt(3 - Math.random() * 6)}deg)`
               }"
             >
               <v-card-text>
@@ -54,7 +54,7 @@
                   v-if="game.guesses && game.guesses[player.index]"
                 >
                   {{ t("Guessed that the murderer was") }}
-                  {{ players[game.guesses[player.index].player].name }},
+                  {{ findPlayer(game.guesses[player.index].player).name }},
                   {{ t("the M.O. was") }}
                   {{ game.guesses[player.index].mean }}
                   {{ t("and the key evidence was") }}
@@ -90,7 +90,8 @@
           </v-col>
           <v-col cols="12">
             <div class="finished" v-if="game.finished">
-              The game is finshed. The {{ game.winner }} won!
+              {{ t("The game is finished. The") }} {{ game.winner }}
+              {{ t("won!") }}
             </div>
           </v-col>
         </v-row>
@@ -103,13 +104,12 @@
             <span class="text">{{ t("Forensic Scientist") }}</span>
           </div>
         </div>
-        <div class="subtitle-1"></div>
         <v-card
-          v-for="(item, index) in game.forensicAnalysis"
+          v-for="(item, index) in game.forensicAnalysis || []"
           :key="'fa' + index"
           class="mb-4"
           :style="{
-            transform: `rotate(${parseInt(3 - Math.random() * 6)}deg)`,
+            transform: `rotate(${parseInt(3 - Math.random() * 6)}deg)`
           }"
         >
           <v-card-text class="analysis">
@@ -125,6 +125,8 @@
 </template>
 
 <script>
+import { findPlayerByIndex, playersByIndex } from "@/utils/game";
+
 export default {
   name: "Board",
 
@@ -140,25 +142,29 @@ export default {
       of: "de",
       Analysis: "Análise",
       "Forensic Scientist": "Cientista Forense",
-    },
+      "The game is finished. The": "O jogo terminou. Os",
+      "won!": "venceram!"
+    }
   },
   computed: {
     game() {
       return this.$store.state.game;
     },
     players() {
-      if (!this.game || !this.game.players) return false;
-      return Object.keys(this.game.players).map(
-        (item) => this.game.players[item]
-      );
+      return playersByIndex(this.game);
     },
     suspects() {
-      return this.players.filter((item) => item.index !== this.game.detective);
-    },
+      return this.players.filter(item => item.index !== this.game.detective);
+    }
+  },
+  methods: {
+    findPlayer(playerIndex) {
+      return findPlayerByIndex(this.game, playerIndex) || { name: "?" };
+    }
   },
   mounted() {
     this.$translate.setLang(this.game.lang);
-  },
+  }
 };
 </script>
 

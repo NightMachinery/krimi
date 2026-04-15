@@ -20,8 +20,8 @@ My take on it, Krimi, is a realtime multiplayer version of that boardgame, where
 ### Credits
 I’ve made the design and coding for the game using some help from frameworks, libraries and resources:
 
-- [Vue.js](https://vuejs.org/) for the front-end, using [Vue-CLI](https://cli.vuejs.org/), with PWA support.
-- [Firebase](http://firebase.google.com) for managing the real-time updates.
+- [Vue.js](https://vuejs.org/) for the front-end, using [Vue-CLI](https://cli.vuejs.org/).
+- A self-hosted Go + SQLite backend for the real-time game state.
 - [Vuetify](https://vuetifyjs.com/en/) for basic layout and design.
 - [Vue QRCode](https://github.com/xkeshi/vue-qrcode), by xkeshi, for creating QRCodes for each new game.
 - [Vue Translate](https://github.com/javisperez/vuetranslate), by javisperez, to allow the game to be played both in English or Portuguese.
@@ -30,24 +30,26 @@ I’ve made the design and coding for the game using some help from frameworks, 
 
 ## Project setup
 ```
-npm install
+pnpm install
 ```
 
 ### Compiles and hot-reloads for development
 ```
-npm run serve
+pnpm run serve
 ```
 
 ### Compiles and minifies for production
 ```
-npm run build
+pnpm run build
 ```
 
 ### Lints and fixes files
 ```
-npm run lint
+pnpm run lint
 ```
 
+## Self-hosting
+See [`docs/self-hosting.md`](docs/self-hosting.md) and `./self_host.zsh` for the self-hosted deployment flow.
 
 ## That’s it!
 You can play the game now at https://krimi.ludoratory.com. I am eager to hear any critiques, doubts, comments and suggestions you might have about the game, my code or the Ludoratory project.

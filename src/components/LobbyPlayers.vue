@@ -1,11 +1,7 @@
 <template>
   <v-card class="mt-4">
     <v-slide-y-transition group>
-      <v-list-item
-        two-line
-        v-for="(player, index) in players"
-        :key="player.playerkey"
-      >
+      <v-list-item two-line v-for="player in players" :key="player.playerkey">
         <v-list-item-content>
           <v-list-item-title class="font-weight-bold">{{
             player.name
@@ -15,8 +11,9 @@
           </v-list-item-subtitle>
         </v-list-item-content>
         <v-list-item-action>
-          <v-btn icon @click="makeDetective(index)">
-            <v-icon :color="index === active ? 'secondary' : 'gray'"
+          <v-btn icon @click="makeDetective(player.index)">
+            <v-icon
+              :color="player.index === game.detective ? 'secondary' : 'gray'"
               >mdi-police-badge</v-icon
             >
           </v-btn>
@@ -28,9 +25,6 @@
 
 <script>
 export default {
-  data: () => ({
-    active: 0
-  }),
   props: {
     players: {
       type: Array,
@@ -42,12 +36,10 @@ export default {
     }
   },
   methods: {
-    async makeDetective(player) {
-      this.active = player;
-      this.$emit("change", player);
+    async makeDetective(playerIndex) {
       await this.$store.dispatch("setDetective", {
-        game: this.game.gamekey,
-        player: this.active
+        gameId: this.game.gameId,
+        player: playerIndex
       });
     }
   }

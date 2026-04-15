@@ -37,6 +37,7 @@
 <script>
 import ForensicAnalysis from "@/components/ForensicAnalysis";
 import Detective from "@/components/Detective";
+
 export default {
   name: "Player",
   locales: {
@@ -54,21 +55,25 @@ export default {
       return this.$store.state.player;
     }
   },
-  methods: {},
   async mounted() {
     await this.$store.dispatch("loadPlayer", {
       game: this.$route.params.id,
       player: this.$route.params.slug
     });
-    this.$translate.setLang(this.game.lang);
+    if (this.game?.lang) {
+      this.$translate.setLang(this.game.lang);
+    }
+  },
+  beforeDestroy() {
+    this.$store.dispatch("disconnectGame");
   },
   watch: {
-    async game(newValue, oldValue) {
-      if (oldValue && !oldValue.started && newValue.started) {
-        await this.$store.dispatch("loadPlayer", {
-          game: this.$route.params.id,
-          player: this.$route.params.slug
-        });
+    game: {
+      immediate: true,
+      handler(newValue) {
+        if (newValue?.lang) {
+          this.$translate.setLang(newValue.lang);
+        }
       }
     }
   }

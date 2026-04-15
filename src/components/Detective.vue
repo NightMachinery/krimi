@@ -53,7 +53,7 @@
           }}</v-btn>
           <p class="headline mt-4">{{ t("You are") }} {{ playerRole }}</p>
           <murderer-choice
-            @choice="this.sheet = false"
+            @choice="sheet = false"
             v-if="player.index === game.murderer"
             :game="game"
             :player="player"
@@ -136,7 +136,9 @@
                   </v-col>
                 </v-row>
                 <v-card-text>
-                  <v-btn @click="sendGuess">{{ t("Send guess") }}</v-btn>
+                  <v-btn @click="sendGuess" :disabled="!guessReady">{{
+                    t("Send guess")
+                  }}</v-btn>
                 </v-card-text>
               </v-card-text>
             </v-card>
@@ -149,6 +151,8 @@
 
 <script>
 import MurdererChoice from "@/components/MurdererChoice";
+import { playersByIndex } from "@/utils/game";
+
 export default {
   components: { MurdererChoice },
   data: () => ({
@@ -190,39 +194,40 @@ export default {
     disableActions() {
       return (
         (this.game.passedTurns && this.game.passedTurns[this.player.index]) ||
-        (this.game.guesses && !!this.game.guesses[this.player.index])
+        (this.game.guesses && !!this.game.guesses[this.player.index]) ||
+        this.game.finished
       );
     },
     playerRole() {
       if (this.player.index === this.game.murderer) {
         return this.t("the murderer");
-      } else {
-        return this.t("a detective");
       }
+      return this.t("a detective");
     },
     players() {
-      return Object.keys(this.game.players)
-        .map(item => this.game.players[item])
-        .filter(
-          item =>
-            item.index !== this.game.detective &&
-            item.index !== this.player.index
-        );
+      return playersByIndex(this.game).filter(
+        item =>
+          item.index !== this.game.detective && item.index !== this.player.index
+      );
     },
     selectedPlayer() {
       return this.players.find(item => item.index === this.guess.player);
+    },
+    guessReady() {
+      return this.guess.player !== null && this.guess.mean && this.guess.key;
     }
   },
   methods: {
     async passTurn() {
       await this.$store.dispatch("passTurn", {
-        game: this.game.gamekey,
+        gameId: this.game.gameId,
         player: this.player
       });
     },
     async sendGuess() {
+      if (!this.guessReady) return;
       await this.$store.dispatch("makeGuess", {
-        game: this.game.gamekey,
+        gameId: this.game.gameId,
         player: this.player,
         guess: this.guess
       });

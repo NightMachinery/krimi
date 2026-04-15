@@ -6,6 +6,7 @@
 <script>
 import Lobby from "@/components/Lobby";
 import Board from "@/components/Board";
+
 export default {
   name: "Game",
   components: { Lobby, Board },
@@ -16,6 +17,9 @@ export default {
   },
   mounted() {
     this.$store.dispatch("loadGame", this.$route.params.id);
+  },
+  beforeDestroy() {
+    this.$store.dispatch("disconnectGame");
   }
 };
 </script>

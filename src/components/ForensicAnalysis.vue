@@ -71,6 +71,7 @@
             x-large
             :disabled="
               analysis.length < availableClues.length ||
+                analysis.some(item => !item) ||
                 (game.forensicAnalysis &&
                   game.forensicAnalysis.length === availableClues.length)
             "
@@ -83,6 +84,8 @@
 </template>
 
 <script>
+import { findPlayerByIndex } from "@/utils/game";
+
 export default {
   data: () => ({
     analysis: []
@@ -115,16 +118,13 @@ export default {
       );
     },
     murderer() {
-      const key = Object.keys(this.game.players).find(
-        item => this.game.players[item].index === this.game.murderer
-      );
-      return this.game.players[key];
+      return findPlayerByIndex(this.game, this.game.murderer);
     }
   },
   methods: {
     async sendAnalysis() {
       await this.$store.dispatch("setAnalysis", {
-        game: this.game.gamekey,
+        gameId: this.game.gameId,
         analysis: this.analysis
       });
     }

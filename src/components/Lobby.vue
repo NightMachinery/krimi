@@ -18,17 +18,12 @@
           rounded
           color="accent"
         ></v-progress-linear>
-        <lobby-players
-          v-if="players"
-          :game="game"
-          :players="players"
-          @change="changeDetective"
-        />
+        <lobby-players v-if="players.length" :game="game" :players="players" />
         <v-btn
           class="mt-4"
           x-large
           color="accent"
-          :disabled="!players || players.length < 5"
+          :disabled="players.length < 5"
           @click="startGame"
           >{{ t("Start game") }}</v-btn
         >
@@ -49,8 +44,9 @@
               block
               class="mt-4 accent--text"
               text
-              >{{ t("Copy game url") }}</v-btn
             >
+              {{ t("Copy game url") }}
+            </v-btn>
           </v-card-text>
         </v-card>
       </v-col>
@@ -65,8 +61,16 @@
 </template>
 
 <script>
-function copyTextToClipboard(text) {
-  var textArea = document.createElement("textarea");
+import LobbyPlayers from "./LobbyPlayers";
+import { playersByIndex } from "@/utils/game";
+
+async function copyTextToClipboard(text) {
+  if (window.isSecureContext && navigator.clipboard?.writeText) {
+    await navigator.clipboard.writeText(text);
+    return;
+  }
+
+  const textArea = document.createElement("textarea");
   textArea.style.position = "fixed";
   textArea.style.top = 0;
   textArea.style.left = 0;
@@ -81,16 +85,10 @@ function copyTextToClipboard(text) {
   document.body.appendChild(textArea);
   textArea.focus();
   textArea.select();
-  try {
-    var successful = document.execCommand("copy");
-    var msg = successful ? "successful" : "unsuccessful";
-    console.log("Copying text command was " + msg);
-  } catch (err) {
-    console.log("Oops, unable to copy");
-  }
+  document.execCommand("copy");
   document.body.removeChild(textArea);
 }
-import LobbyPlayers from "./LobbyPlayers";
+
 export default {
   name: "Home",
   locales: {
@@ -109,8 +107,7 @@ export default {
   },
   components: { LobbyPlayers },
   data: () => ({
-    snackbar: false,
-    active: 0
+    snackbar: false
   }),
   computed: {
     game() {
@@ -120,40 +117,33 @@ export default {
       return `${window.location.origin}/join?room=${this.game.gameId}`;
     },
     players() {
-      if (!this.game || !this.game.players) return false;
-      return Object.keys(this.game.players).map(
-        item => this.game.players[item]
-      );
+      return playersByIndex(this.game);
     },
     playerCount() {
-      if (!this.game || !this.game.players)
-        return this.t("No players joined yet.");
-      else if (this.players.length === 1)
+      if (!this.players.length) return this.t("No players joined yet.");
+      if (this.players.length === 1) {
         return `${this.players.length} ${this.t("player joined.")}`;
-      else return `${this.players.length} ${this.t("players joined.")}`;
+      }
+      return `${this.players.length} ${this.t("players joined.")}`;
     }
   },
   methods: {
-    changeDetective(evt) {
-      this.active = evt;
-    },
     async startGame() {
       await this.$store.dispatch("startGame", {
-        game: this.game.gamekey,
-        playersObj: this.game.players,
-        players: this.players,
-        detective: this.active,
-        lang: this.$translate.lang
+        gameId: this.game.gameId,
+        detectiveIndex: this.game.detective
       });
     },
-    copyText(text) {
-      copyTextToClipboard(text);
+    async copyText(text) {
+      await copyTextToClipboard(text);
       this.snackbar = true;
     }
   },
   async mounted() {
     await this.$store.dispatch("loadGame", this.$route.params.id);
-    this.$translate.setLang(this.game.lang);
+    if (this.game?.lang) {
+      this.$translate.setLang(this.game.lang);
+    }
   }
 };
 </script>
